@@ -1,3 +1,5 @@
+//KUSTO
+
 let user_data_var = users_data
 |where usr in ('ZMGMEE', 'ZMGMJN')
 |distinct usr;
@@ -16,3 +18,14 @@ users_data
 users
 |limit 100
 |render table
+
+//SPARK
+%%pyspark
+
+kustoDf  = spark.read \
+    .format("com.microsoft.kusto.spark.synapse.datasource") \
+    .option("spark.synapse.linkedService", "kustoPool") \
+    .option("kustoCluster", "https://eightfivedataexplorer.eightfive-synapse.kusto.azuresynapse.net") \
+    .option("kustoDatabase", "eightfive-de-db") \
+    .option("kustoQuery", "['users_data'] | take 10") \
+    .load()
