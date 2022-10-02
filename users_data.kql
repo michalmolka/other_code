@@ -1,0 +1,18 @@
+let user_data_var = users_data
+|where usr in ('ZMGMEE', 'ZMGMJN')
+|distinct usr;
+let ToD01 = "Before";
+let ToD02 = 'After';
+let users = 
+users_data
+|join kind=leftouter mod_data on mod
+|join kind=inner  user_data_var on usr
+|project User=usr, Duration=dur, Mode = mod1, ModeValue=mod_int, 
+ Date=format_datetime(todatetime(['date']), 'yyyy-MM-dd HH:mm'),
+ TimeOfDay=iff(todatetime(['date']) <= todatetime('0001-01-02 20:00:00'), ToD01, ToD02)
+|where User startswith "ZMGM" and Duration >=65 and Mode in ('Song', 'Memory')
+|summarize Quantity=count(), DurationSum=sum(Duration), ModeValueSum=sum(ModeValue) by User, Mode, Date, TimeOfDay
+|sort by User, Mode, Date, TimeOfDay;
+users
+|limit 100
+|render table
